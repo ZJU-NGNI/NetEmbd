@@ -1,0 +1,16 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Python files
+*.py text diff=python
+
+# CSV files
+*.csv text eol=lf
+
+# Documentation
+*.md text diff=markdown
+*.txt text
+
+# Git config
+.gitattributes text
+.gitignore text
