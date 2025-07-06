@@ -41,3 +41,4 @@ htmlcov/
 # Misc
 .DS_Store
 Thumbs.db
+.reference/

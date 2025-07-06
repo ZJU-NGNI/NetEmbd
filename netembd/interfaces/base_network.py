@@ -20,12 +20,18 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
+# 前向声明，避免循环导入
+if False:
+    from netembd.network.flow_generator import Flow
+
 @dataclass
 class NodeResource:
     """节点资源数据类"""
     alu: int  # 算术逻辑单元数量
     stage: int  # 流水线阶段数
     sram: int  # SRAM容量(KB)
+    programmable: Optional[bool] = False  # 是否可编程，默认为False
+    control_node: Optional[bool] = False  # 是否为控制节点，默认为False
 
 class BaseNetwork(ABC):
     """网络拓扑抽象基类"""
@@ -137,5 +143,20 @@ class BaseNetwork(ABC):
         
         Raises:
             ValueError: 路径无效
+        """
+        pass
+    
+    @abstractmethod
+    def generate_flows(self, num_flows: int, flow_size_range: Tuple[float, float] = (1.0, 1000.0), 
+                      large_flow_threshold: float = 100.0) -> List['Flow']:
+        """生成适合该网络类型的流
+        
+        Args:
+            num_flows: 生成的流数量
+            flow_size_range: 流大小范围
+            large_flow_threshold: 大流阈值，超过此值使用sketch测量
+        
+        Returns:
+            生成的流列表
         """
         pass
