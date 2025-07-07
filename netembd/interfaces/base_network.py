@@ -81,6 +81,15 @@ class BaseNetwork(ABC):
         pass
     
     @abstractmethod
+    def get_links(self) -> List['Link']:
+        """获取所有链路对象
+        
+        Returns:
+            链路对象列表，每个链路包含源节点、目标节点、带宽和延迟信息
+        """
+        pass
+    
+    @abstractmethod
     def get_node_resource(self, node_id: int) -> Optional[NodeResource]:
         """获取节点的资源信息
         

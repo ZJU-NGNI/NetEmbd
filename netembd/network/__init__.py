@@ -16,6 +16,9 @@ Typical usage example:
     path = network.get_shortest_path(source=0, target=5)
 """
 
-from .network import Network
+from netembd.network.network import Network, NetworkVisualizationMixin, ProgrammableNetworkMixin, ControlNodeMixin
+from netembd.network.Wan import Wan
+from netembd.network.FatTree import FatTree
+from netembd.network.flow_generator import FlowGenerator, Flow
 
-__all__ = ["Network"]
+__all__ = ["Network", "NetworkVisualizationMixin", "ProgrammableNetworkMixin", "ControlNodeMixin", "Wan", "FatTree", "FlowGenerator", "Flow"]

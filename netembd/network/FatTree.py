@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from netembd.interfaces.base_network import BaseNetwork, NodeResource
-from netembd.network import Network
+from netembd.network import Network, flow_generator
 
 class FatTree(Network):
     def __init__(self, pod_num: int=4, generate_flag: bool=True, single_node_resources: NodeResource=None, edge_bandwidth: float=10000, latency_range: Tuple[float, float]=(1, 10)):
@@ -209,8 +209,8 @@ class FatTree(Network):
             DCN流列表
         """
         from netembd.network.flow_generator import Flow
-        
-        flows = []
+        self.flow_generator = self.create_flow_generator()
+        self.flows = []
         leaf_nodes = self._get_leaf_nodes()
         
         if len(leaf_nodes) < 2:
@@ -220,28 +220,17 @@ class FatTree(Network):
             # 随机选择两个不同的叶子节点作为OD pair
             origin, destination = random.sample(leaf_nodes, 2)
             
-            # 计算最短路径
-            path = self.get_shortest_path(origin, destination)
-            if path is None:
-                continue
-            
             # 生成随机流大小
             flow_size = random.uniform(*flow_size_range)
             
-            # 分配测量类型
-            measurement_type = 'sketch' if flow_size >= large_flow_threshold else 'INT'
+            flow = self.flow_generator.generate_a_flow(flow_id=i, origin=origin, destination=destination, size=flow_size)
             
-            flow = Flow(
-                flow_id=i,
-                origin=origin,
-                destination=destination,
-                size=flow_size,
-                path=path,
-                measurement_type=measurement_type
-            )
-            flows.append(flow)
-        self.flows = flows
-        return flows
+            if flow is None:
+                continue
+            
+            self.flows.append(flow)
+
+        return self.flows
     
     def _get_leaf_nodes(self) -> List[int]:
         """获取DCN网络的叶子节点（边缘交换机）
@@ -257,6 +246,6 @@ class FatTree(Network):
         return list(range(start_edge, end_edge))
 
 if __name__ == '__main__':
-    ft = FatTree()
-    ft.visualize()
+    ft = FatTree(pod_num=48)
+    # ft.visualize()
     print(len(ft.get_nodes()))

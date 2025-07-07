@@ -23,6 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from netembd.interfaces.base_network import BaseNetwork, NodeResource
+from netembd.network import flow_generator
 
 class NetworkVisualizationMixin:
     """网络可视化混入类，提供基础的可视化功能"""
@@ -98,6 +99,7 @@ class Network(BaseNetwork, NetworkVisualizationMixin, ProgrammableNetworkMixin, 
         self._graph = nx.Graph()
         self._node_resources: Dict[int, NodeResource] = {}
         self._shortest_paths: Dict[Tuple[int, int], List[int]] = {}
+
     
     def load_nodes(self, node_csv: str) -> None:
         """从CSV文件加载节点配置
@@ -169,6 +171,32 @@ class Network(BaseNetwork, NetworkVisualizationMixin, ProgrammableNetworkMixin, 
             边列表，每条边为(源节点ID, 目标节点ID)元组
         """
         return list(self._graph.edges())
+    
+    def get_links(self) -> List['Link']:
+        """获取所有链路对象
+        
+        Returns:
+            链路对象列表，每个链路包含源节点、目标节点、带宽和延迟信息
+        """
+        from dataclasses import dataclass
+        
+        @dataclass
+        class Link:
+            source: int
+            target: int
+            bandwidth: float
+            latency: float
+        
+        links = []
+        for source, target, data in self._graph.edges(data=True):
+            link = Link(
+                source=source,
+                target=target,
+                bandwidth=data.get('bandwidth', 0.0),
+                latency=data.get('latency', 0.0)
+            )
+            links.append(link)
+        return links
     
     def get_node_resource(self, node_id: int) -> NodeResource:
         """获取节点的资源信息
@@ -277,39 +305,29 @@ class Network(BaseNetwork, NetworkVisualizationMixin, ProgrammableNetworkMixin, 
             流列表
         """
         import random
-        from .flow_generator import Flow
+        from .flow_generator import Flow, FlowGenerator
         
-        flows = []
+        self.flows = []
+        self.flow_generator = self.create_flow_generator()
+
         non_control_nodes = self._get_non_control_nodes()
         
         if len(non_control_nodes) < 2:
-            return flows
+            return self.flows
             
         for i in range(num_flows):
             # 随机选择两个不同的非控制节点作为OD pair
             origin, destination = random.sample(non_control_nodes, 2)
             
-            # 计算最短路径
-            path = self.get_shortest_path(origin, destination)
-            if path is None:
-                continue
-            
             # 生成随机流大小
             flow_size = random.uniform(*flow_size_range)
             
-            # 分配测量类型
-            measurement_type = 'sketch' if flow_size >= large_flow_threshold else 'INT'
+            flow = self.flow_generator.generate_a_flow(flow_id=i, origin=origin, destination=destination, size=flow_size)
             
-            flow = Flow(
-                flow_id=i,
-                origin=origin,
-                destination=destination,
-                size=flow_size,
-                path=path,
-                measurement_type=measurement_type
-            )
-            flows.append(flow)
-        self.flows = flows
+            if flow is None:
+                continue
+            
+            self.flows.append(flow)
         return flows
     
     def _get_non_control_nodes(self) -> List[int]:
