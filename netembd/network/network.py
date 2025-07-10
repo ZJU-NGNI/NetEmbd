@@ -87,7 +87,7 @@ class ControlNodeMixin:
             programmable=False,
             control_node=True
         )
-        self._graph.add_edge(control_node, target_node, latency=1.0, bandwidth=1000.0)
+        self._graph.add_edge(control_node, target_node, latency=1.0, bandwidth=10000.0)
         self._shortest_paths.clear()
         return control_node
 
@@ -358,6 +358,22 @@ class Network(BaseNetwork, NetworkVisualizationMixin, ProgrammableNetworkMixin, 
         """
         from .flow_generator import FlowGenerator
         return FlowGenerator(self, num_flows, flow_size_range, large_flow_threshold)
+    
+    def get_neighbors(self, node_id: int) -> List[int]:
+        """获取节点的所有邻居节点
+        
+        Args:
+            node_id: 节点ID
+            
+        Returns:
+            邻居节点ID列表
+            
+        Raises:
+            ValueError: 节点不存在
+        """
+        if node_id not in self._graph:
+            raise ValueError(f"节点{node_id}不存在")
+        return list(self._graph.neighbors(node_id))
 
 
 

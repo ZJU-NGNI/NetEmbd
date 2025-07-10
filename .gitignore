@@ -42,3 +42,6 @@ htmlcov/
 .DS_Store
 Thumbs.db
 .reference/
+
+.stage1_results/
+.stage2_results/

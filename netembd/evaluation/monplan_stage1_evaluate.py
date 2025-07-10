@@ -32,6 +32,8 @@ import json
 import pickle
 from pathlib import Path
 
+from netembd.optimize.MonPlan.MonPlan import Stage1Algorithm
+
 # 添加项目根目录到Python路径
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
@@ -139,7 +141,8 @@ def test_stage1_algorithms(network, flows):
     print("\n=== 阶段一算法测试 ===")
     
     # 定义要测试的阶段一算法
-    stage1_algorithms = ["monplan", "speedplan", "mtpplan"]
+    # stage1_algorithms = ["monplan", "speedplan", "mtpplan"]
+    stage1_algorithms = ["monplan"]
     
     # 创建评估器
     evaluator = Stage1Evaluator()
@@ -446,4 +449,10 @@ def main():
 
 if __name__ == "__main__":
     # 运行批量测试
-    test_all_networks()
+    # test_all_networks()
+    network, network_name = create_fattree_network(pod_num=6)
+    print(network_name)
+    flows = generate_test_flows(network, num_flows=100)
+    stage1_results = test_stage1_algorithms(network, flows)
+    save_stage1_results(stage1_results, network_name)
+

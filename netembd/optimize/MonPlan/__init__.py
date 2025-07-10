@@ -55,7 +55,8 @@ from .measurement_point_selection import (
     BaseStage1Algorithm,
     MonPlanStage1,
     SpeedPlanStage1,
-    MtpPlanStage1
+    MtpPlanStage1,
+    MonPlan_LG_Stage1
 )
 
 # 数据收集路径算法
@@ -92,6 +93,7 @@ __all__ = [
     'MonPlanStage1',
     'SpeedPlanStage1',
     'MtpPlanStage1',
+    'MonPlan_LG_Stage1',
     
     # 阶段二算法
     'BaseStage2Algorithm',
@@ -116,7 +118,8 @@ __description__ = 'Network Measurement Optimization Framework'
 STAGE1_ALGORITHMS = {
     'monplan': MonPlanStage1,
     'speedplan': SpeedPlanStage1,
-    'mtpplan': MtpPlanStage1
+    'mtpplan': MtpPlanStage1,
+    'monplan_lg': MonPlan_LG_Stage1
 }
 
 STAGE2_ALGORITHMS = {
